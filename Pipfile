@@ -4,6 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+fastapi = "*"
+uvicorn = "*"
+pydantic = "*"
+google-cloud-bigquery = "*"
+pandas = "*"
+python-multipart = "*"
+pyarrow = "*"
 
 [dev-packages]
 
