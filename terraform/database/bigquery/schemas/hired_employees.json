@@ -1,0 +1,27 @@
+[
+  {
+    "name": "id",
+    "type": "INTEGER",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "name",
+    "type": "STRING",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "date",
+    "type": "DATETIME",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "department",
+    "type": "INTEGER",
+    "mode": "REQUIRED"
+  },
+  {
+    "name": "role",
+    "type": "INTEGER",
+    "mode": "REQUIRED"
+  }
+]
