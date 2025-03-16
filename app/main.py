@@ -1,4 +1,5 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
+from app.adapters.bigquery_destination import BQDestination
 from app.utils.managed_tables import TableEnum
 from typing import List, Optional
 from google.cloud import bigquery
@@ -14,6 +15,8 @@ app = FastAPI()
 
 # BigQuery client
 client = bigquery.Client()
+# BigQuery destination adapter
+bq_dest = BQDestination(client)
 
 
 class UploadResponse(BaseModel):
@@ -26,9 +29,9 @@ class CSVUploadRequest(BaseModel):
 
 @app.post("/upload-csv/", response_model=UploadResponse)
 async def upload_csv(
-    file: UploadFile = File(...),
-    name: TableEnum = Form(...),
-    headers: Optional[str] = Form(None)
+        file: UploadFile = File(...),
+        name: TableEnum = Form(...),
+        headers: Optional[str] = Form(None)
 ):
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="File must be a CSV")
@@ -67,9 +70,8 @@ async def upload_csv(
     table_id = f"{PROJECT_ID}.{DATASET}.{name}"
 
     # Upload DataFrame to BigQuery
-    job = client.load_table_from_dataframe(df, table_id)
-    job.result()  # Wait for the job to complete
+    bq_dest.load_table(df, table_id)
 
     # Check if table was created or overwritten
-    table = client.get_table(table_id)
+    table = bq_dest.get_table(table_id)
     return {"message": f"Data uploaded to {table_id}. Table has {table.num_rows} rows."}
