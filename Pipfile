@@ -11,8 +11,11 @@ google-cloud-bigquery = "*"
 pandas = "*"
 python-multipart = "*"
 pyarrow = "*"
+db-dtypes = "*"
 
 [dev-packages]
+pytest = "*"
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.9"
