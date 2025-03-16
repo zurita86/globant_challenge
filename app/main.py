@@ -1,12 +1,11 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
-from app.adapters.bigquery_destination import BQDestination
 from app.utils.managed_tables import TableEnum
 from typing import List, Optional
 from google.cloud import bigquery
 from pydantic import BaseModel
-import pandas as pd
-import json
-import io
+
+from app.adapters.bigquery_destination import BQDestination
+from app.adapters.parse_csv import ParseCSV
 
 PROJECT_ID = 'cwp-project-272117'
 DATASET = 'sandbox'
@@ -15,8 +14,6 @@ app = FastAPI()
 
 # BigQuery client
 client = bigquery.Client()
-# BigQuery destination adapter
-bq_dest = BQDestination(client)
 
 
 class UploadResponse(BaseModel):
@@ -36,42 +33,16 @@ async def upload_csv(
     if not file.filename.endswith(".csv"):
         raise HTTPException(status_code=400, detail="File must be a CSV")
 
-    # Read the CSV file
-    contents = await file.read()
-    df = pd.read_csv(io.StringIO(contents.decode("utf-8")))
+    # Parse CSV File as Pandas DF
+    parse_csv = ParseCSV(file)
+    df = await parse_csv.parse_as_df(headers)
 
-    # If headers are provided, decode and validate them
-    if headers:
-        try:
-            headers_list = json.loads(headers)
-            if len(headers_list) != len(df.columns):
-                raise HTTPException(
-                    status_code=400,
-                    detail=f"Number of headers ({len(headers_list)}) does not match number of columns in CSV ({len(df.columns)})"
-                )
-            df.columns = headers_list
-        except json.JSONDecodeError:
-            raise HTTPException(status_code=400, detail="Invalid headers format. Must be a JSON-encoded list.")
-    else:
-        # If no headers are provided, use the first row as the header
-        df.columns = df.iloc[0]  # Set the first row as the header
-        df = df[1:]  # Drop the first row (since it's now the header)
-
-    # Convert datetime columns
-    for col in df.columns:
-        # Check if the column contains datetime strings
-        if df[col].dtype == "object" and df[col].str.contains(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z").any():
-            try:
-                df[col] = pd.to_datetime(df[col])  # Convert to datetime
-            except ValueError:
-                pass  # Skip if conversion fails
-
-    # Define BigQuery table ID
-    table_id = f"{PROJECT_ID}.{DATASET}.{name}"
+    # BigQuery destination adapter
+    bq_dest = BQDestination(client, PROJECT_ID, DATASET, name)
 
     # Upload DataFrame to BigQuery
-    bq_dest.load_table(df, table_id)
+    bq_dest.load_table(df)
 
     # Check if table was created or overwritten
-    table = bq_dest.get_table(table_id)
-    return {"message": f"Data uploaded to {table_id}. Table has {table.num_rows} rows."}
+    table = bq_dest.get_table()
+    return {"message": f"Data uploaded to {PROJECT_ID}.{DATASET}.{name}. Table has {table.num_rows} rows."}
