@@ -7,6 +7,9 @@ import pandas as pd
 import json
 import io
 
+PROJECT_ID = 'cwp-project-272117'
+DATASET = 'sandbox'
+
 app = FastAPI()
 
 # BigQuery client
@@ -61,7 +64,7 @@ async def upload_csv(
                 pass  # Skip if conversion fails
 
     # Define BigQuery table ID
-    table_id = f"cwp-project-272117.sandbox.{name}"
+    table_id = f"{PROJECT_ID}.{DATASET}.{name}"
 
     # Upload DataFrame to BigQuery
     job = client.load_table_from_dataframe(df, table_id)
