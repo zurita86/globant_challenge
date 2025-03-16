@@ -5,7 +5,7 @@
     "mode": "REQUIRED"
   },
   {
-    "name": "role",
+    "name": "job",
     "type": "STRING",
     "mode": "REQUIRED"
   }

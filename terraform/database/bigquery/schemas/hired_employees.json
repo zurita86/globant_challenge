@@ -10,17 +10,17 @@
     "mode": "NULLABLE"
   },
   {
-    "name": "date",
+    "name": "datetime",
     "type": "DATETIME",
     "mode": "NULLABLE"
   },
   {
-    "name": "department",
+    "name": "department_id",
     "type": "INTEGER",
     "mode": "NULLABLE"
   },
   {
-    "name": "role",
+    "name": "job_id",
     "type": "INTEGER",
     "mode": "NULLABLE"
   }
