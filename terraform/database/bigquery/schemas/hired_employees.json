@@ -7,21 +7,21 @@
   {
     "name": "name",
     "type": "STRING",
-    "mode": "REQUIRED"
+    "mode": "NULLABLE"
   },
   {
     "name": "date",
     "type": "DATETIME",
-    "mode": "REQUIRED"
+    "mode": "NULLABLE"
   },
   {
     "name": "department",
     "type": "INTEGER",
-    "mode": "REQUIRED"
+    "mode": "NULLABLE"
   },
   {
     "name": "role",
     "type": "INTEGER",
-    "mode": "REQUIRED"
+    "mode": "NULLABLE"
   }
 ]
