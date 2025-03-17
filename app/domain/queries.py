@@ -4,12 +4,12 @@ class Queries:
         query = """
             WITH count_2021 AS (
               SELECT
-                department,
+                department_id,
                 count(name) AS cnt
               FROM
                 `cwp-project-272117.sandbox.hired_employees`
-              WHERE department IS NOT NULL
-              AND job IS NOT NULL
+              WHERE department_id IS NOT NULL
+              AND job_id IS NOT NULL
               AND name IS NOT NULL
               AND `datetime` BETWEEN '2021-01-01' AND '2021-12-31' 
               GROUP BY 1
@@ -19,18 +19,18 @@ class Queries:
                 avg(cnt) as mean
               FROM count_2021
             ),
-            departments_count AS (
+            department_ids_count AS (
               SELECT
-                department,
+                department_id,
                 count(name) AS cnt
               FROM
                 `cwp-project-272117.sandbox.hired_employees`
-              WHERE department IS NOT NULL
-              AND job IS NOT NULL
+              WHERE department_id IS NOT NULL
+              AND job_id IS NOT NULL
               AND name IS NOT NULL
               GROUP BY 1
             ),
-            departments AS (
+            department_ids AS (
               SELECT
                 id,
                 department
@@ -39,14 +39,14 @@ class Queries:
               WHERE department IS NOT NULL
             )
             SELECT 
-              CAST(dc.department AS INT) AS id,
+              CAST(dc.department_id AS INT) AS id,
               d.department,
               dc.cnt AS hired
-            FROM departments_count dc
+            FROM department_ids_count dc
             JOIN mean_2021 m
             ON dc.cnt > m.mean
-            JOIN departments d
-            ON dc.department = d.id
+            JOIN department_ids d
+            ON dc.department_id = d.id
             ORDER BY hired DESC
             """
 
